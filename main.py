@@ -29,7 +29,6 @@ while True:
         break
 
     screen.fill(gamebase.BACKGROUND_COLOR)
-    pygame.display.flip()
 
     # game delta time(mainly for rendering) and tick time(mainly for game logic) calculation
     delta_time = clock.tick(gamebase.TICK_RATE) / 1000
@@ -43,6 +42,8 @@ while True:
         # avoid death spiral
         if tick_count >= MAX_TICK_COUNT_PER_FRAME:
             break
+    
+    pygame.display.flip()
 
     
     
