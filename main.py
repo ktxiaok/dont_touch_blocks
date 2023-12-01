@@ -3,15 +3,12 @@ from pygame.locals import *
 import gamebase
 
 # constants
-MAX_TICK_COUNT_PER_FRAME = 4
 TICK_TIME = float(gamebase.TICK_TIME)
 
 # init pygame
 pygame.init()
 screen = pygame.display.set_mode(gamebase.WINDOW_DIMENSION)
 clock = pygame.time.Clock()
-delta_time = 0.0
-tick_timer = 0.0
 
 while True:
     request_quit = False
@@ -20,7 +17,7 @@ while True:
     for event in pygame.event.get():
         if event.type == QUIT:
             request_quit = True
-        gamebase.on_event(event)
+        gamebase.on_pygame_event(event)
     
     # handle quit request
     if request_quit:
@@ -30,18 +27,12 @@ while True:
 
     screen.fill(gamebase.BACKGROUND_COLOR)
 
-    # game delta time(mainly for rendering) and tick time(mainly for game logic) calculation
-    delta_time = clock.tick(gamebase.TICK_RATE) / 1000
-    gamebase.on_update(delta_time)
-    tick_timer += delta_time
-    tick_count = 0
-    while tick_timer >= TICK_TIME:
-        tick_timer -= TICK_TIME
-        gamebase.on_tick()
-        tick_count += 1
-        # avoid death spiral
-        if tick_count >= MAX_TICK_COUNT_PER_FRAME:
-            break
+    # tick time calculation and tick call
+    dt = clock.tick(gamebase.TICK_RATE) / 1000
+    gamebase.on_tick()
+    latency = dt - TICK_TIME
+    if latency > 0.005:
+        print("WARNING: Performance issue. Latency: " + str(latency))
     
     pygame.display.flip()
 
