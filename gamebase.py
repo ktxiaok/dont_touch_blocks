@@ -1,8 +1,14 @@
+'''
+This is the basic framework of the entire game program. 
+'''
+
+from typing import Type, Optional
 import decimal
 from decimal import Decimal
 import pygame
 from pygame.locals import *
 from pygame import display
+from scene import Scene
 
 decimal.getcontext().prec = 6
 
@@ -14,28 +20,83 @@ TICK_RATE = 100
 TICK_TIME = Decimal(1) / Decimal(TICK_RATE)
 TICK_TIME_FLOAT = float(TICK_TIME)
 
-_screen = None
+_screen: pygame.Surface = None
 
-def run():
+_active_scene: Scene = None
+
+_scene_type_to_load: Optional[Type[Scene]] = None 
+
+@property
+def screen():
     global _screen
+    return _screen
+
+@property
+def active_scene():
+    global active_scene
+    return active_scene
+
+def request_load_scene(scene_type: Type[Scene]):
+    '''
+    Request to destroy current scene and load a new scene.
+    
+    Args:
+        scene_type: The class object of the scene to load.
+
+    Raises:
+        ValueError: The argument type is not correct.
+        TypeError: Arg scene_type is not the subclass of Scene.
+        InvalidOperationException: There is already a scene ready to load.
+    '''
+
+    global _scene_type_to_load
+    if not isinstance(scene_type, type):
+        raise ValueError("Arg scene_type must be a type object!")
+    if not issubclass(scene_type, Scene):
+        raise TypeError("Arg scene_type must be the subclass of Scene!")
+    if _scene_type_to_load != None:
+        raise InvalidOperationException("There is already a scene ready to load!")
+    
+    _scene_type_to_load = scene_type
+
+def run(initial_scene_type: Type(Scene)):
+    '''
+    Run the game!
+
+    There's a game loop inside this function.
+    The game updates a frame at set intervals. 
+    '''
+
+    global _screen
+    global _active_scene
+    global _scene_type_to_load
+
+    request_load_scene(initial_scene_type)
     
     # init pygame
     pygame.init()
     _screen = display.set_mode(WINDOW_DIMENSION)
     clock = pygame.time.Clock()
+    request_quit = False
 
     while True:
-        request_quit = False
-
+        # check whether there's a request to load a new scene.
+        if _scene_type_to_load != None:
+            if _active_scene != None: 
+                _active_scene.on_destroy()
+            _active_scene = _scene_type_to_load()
+            _active_scene.on_create()
+            _scene_type_to_load = None
+        
         # poll for events
         for event in pygame.event.get():
             if event.type == QUIT:
                 request_quit = True
-            on_pygame_event(event)
+            _active_scene._send_pygame_event(event)
         
-        # handle quit request
+        # handle the quit request
         if request_quit:
-            on_quit()
+            _active_scene.on_destroy()
             pygame.quit()
             break
 
@@ -43,19 +104,12 @@ def run():
 
         # tick time calculation and tick call
         dt = clock.tick(TICK_RATE) / 1000
-        on_tick()
+        _active_scene._tick()
         latency = dt - TICK_TIME_FLOAT
         if latency > 0.005:
             print("WARNING: Performance issue. Latency: " + str(latency))
         
         display.flip()
 
-def on_pygame_event(event: pygame.event.Event):
+class InvalidOperationException(Exception):
     pass
-
-def on_quit():
-    pass
-
-def on_tick():
-    from _test import test1
-    test1.update(_screen, float(TICK_TIME))
