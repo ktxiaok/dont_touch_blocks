@@ -1,9 +1,13 @@
+'''
+This module is mainly about scenes and entities.
+'''
+
 import typing
 from typing import List, Set, Dict, Type, Optional
 from abc import ABC, abstractmethod
-from entity import Entity, DynamicEntity, PygameEventListenerEntity, SingletonEntity
 import pygame
 from gamebase import InvalidOperationException
+from utils import DecimalVector2
 
 class Scene(ABC):
     '''
@@ -13,10 +17,10 @@ class Scene(ABC):
     including spawning entities, updating entities, distributing events to entities, and so on. Concrete scenes should be implemented by inheriting this class.
     '''
 
-    __entities: Set[Entity]
-    __dynamic_entities: List[DynamicEntity]
-    __pygame_event_listener_entities: List[PygameEventListenerEntity]
-    __singleton_entities: Dict[Type[SingletonEntity], SingletonEntity]
+    __entities: Set["Entity"]
+    __dynamic_entities: List["DynamicEntity"]
+    __pygame_event_listener_entities: List["PygameEventListenerEntity"]
+    __singleton_entities: Dict[Type["SingletonEntity"], "SingletonEntity"]
     
     def __init__(self):
         self.__entities = set()
@@ -40,7 +44,7 @@ class Scene(ABC):
 
         pass
 
-    def spawn_entity(self, entity_type: Type[Entity]):
+    def spawn_entity(self, entity_type: Type["Entity"]):
         '''
         Spawn a entity in the scene.
 
@@ -75,10 +79,10 @@ class Scene(ABC):
 
         return entity
     
-    def get_singleton_entity(self, entity_type: Type[SingletonEntity]) -> Optional[SingletonEntity]:
+    def get_singleton_entity(self, entity_type: Type["SingletonEntity"]) -> Optional["SingletonEntity"]:
         return self.__singleton_entities.get(entity_type)
     
-    def _remove_entity(self, entity: Entity):
+    def _remove_entity(self, entity: "Entity"):
         '''
         Remove the entity instance from the game scene.
 
@@ -114,3 +118,115 @@ class Scene(ABC):
         entity_buffer = self.__pygame_event_listener_entities.copy()
         for entity in entity_buffer:
             entity.on_pygame_event(event)
+
+class Entity(ABC):
+    '''
+    This is an abstract class representing for the game entity.
+
+    A game entity is an individual having special function in the game scene. 
+    '''
+
+    __scene: Scene
+    
+    __is_destroyed: bool = False
+
+    def __init__(self, scene: Scene):
+        '''
+        This constructor can only be called by the class Scene!
+        '''
+
+        self.__scene = scene
+
+    @property
+    def scene(self):
+        '''
+        Returns the Scene instance this entity belongs to.
+        '''
+
+        return self.__scene
+    
+    @property
+    def is_destroyed(self):
+        '''
+        Returns whether the entity instance has been destroyed. 
+        '''
+        
+        return self.__is_destroyed
+    
+    def on_spawn(self):
+        '''
+        When a new entity instance is spawned, this method will be called.
+        '''
+
+        pass
+
+    def on_destroy(self):
+        '''
+        This method will be called when the entity instance is to be destroyed.
+        '''
+
+        pass
+
+    def destroy(self):
+        '''
+        Destroy the entity instance.
+        '''
+
+        if self.__is_destroyed:
+            return
+        
+        self.on_destroy()
+        self.__is_destroyed = True
+        self.__scene._remove_entity(self)
+
+class SingletonEntity(Entity):
+    '''
+    No more than one instance of this type is allowed in a scene.
+
+    Instances of this type can be accessed by Scene.get_singleton_entity. 
+    '''
+
+    pass
+
+class PygameEventListenerEntity(Entity):
+    '''
+    Represents for a event listener entity for pygame events.
+    '''
+
+    @abstractmethod
+    def on_pygame_event(self, event: pygame.event.Event):
+        '''
+        This method will be called when a pygame event occurs.
+
+        Args:
+            event: A pygame.event.Event instance that occurs.
+        '''
+
+        pass
+
+class DynamicEntity(Entity):
+    '''
+    Entities of this type will be updated on every game tick(in other word, frame).
+    '''
+
+    def on_tick(self):
+        '''
+        This method will be called on every game tick.
+        '''
+
+        pass
+
+class PositionalEntity(Entity):
+    '''
+    Represents for entities that have a 2d decimal position.
+    '''
+    
+    __pos: DecimalVector2 = DecimalVector2()
+    
+    @property
+    def pos(self):
+        return self.__pos
+    
+    @pos.setter
+    def pos(self, pos):
+        self.__pos = pos
