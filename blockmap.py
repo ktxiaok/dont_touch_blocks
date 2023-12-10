@@ -155,13 +155,23 @@ class BlockMapManager(SingletonEntity, DynamicEntity):
     '''
     A manager of all block maps in a game scene.
     '''
-
+    
     __blockmap1: BlockMap
     __blockmap2: BlockMap
     __ready_blockmaps: Queue[BlockMap]
     __unready_blockmaps: Queue[BlockMap]
     
     __move_speed: Decimal = Decimal(0)
+
+    __is_stopped: bool = False
+
+    @property
+    def is_stopped(self):
+        return self.__is_stopped
+    
+    @is_stopped.setter
+    def is_stopped(self, stopped: bool):
+        self.__is_stopped = stopped
 
     @property
     def move_speed(self) -> Decimal:
@@ -191,6 +201,8 @@ class BlockMapManager(SingletonEntity, DynamicEntity):
         return False
 
     def on_tick(self):
+        if self.__is_stopped:
+            return
         dt = gamebase.TICK_TIME
         if self.__blockmap1.is_invalid:
             unready_blockmap = self.__blockmap1
