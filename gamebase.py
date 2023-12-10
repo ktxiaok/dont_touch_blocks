@@ -9,6 +9,7 @@ import pygame
 from pygame.locals import *
 from pygame import display
 from scene import Scene
+from utils import InvalidOperationException
 
 decimal.getcontext().prec = 6
 
@@ -22,9 +23,9 @@ TICK_TIME_FLOAT = float(TICK_TIME)
 
 _screen: pygame.Surface
 
-_active_scene: Scene = None # type:ignore
+_active_scene: "Scene" = None # type:ignore
 
-_scene_type_to_load: Optional[Type[Scene]] = None 
+_scene_type_to_load: Optional[Type["Scene"]] = None 
 
 def get_screen():
     '''
@@ -42,7 +43,7 @@ def get_active_scene():
     global _active_scene
     return _active_scene
 
-def request_load_scene(scene_type: Type[Scene]):
+def request_load_scene(scene_type: Type["Scene"]):
     '''
     Request to destroy current scene and load a new scene.
     
@@ -65,7 +66,7 @@ def request_load_scene(scene_type: Type[Scene]):
     
     _scene_type_to_load = scene_type
 
-def run(initial_scene_type: Type[Scene]):
+def run(initial_scene_type: Type["Scene"]):
     '''
     Run the game!
 
@@ -122,6 +123,3 @@ def run(initial_scene_type: Type[Scene]):
             print("WARNING: Performance issue. Latency: " + str(latency))
         
         display.flip()
-
-class InvalidOperationException(Exception):
-    pass

@@ -6,8 +6,7 @@ import typing
 from typing import List, Set, Dict, Type, Optional
 from abc import ABC, abstractmethod
 import pygame
-from gamebase import InvalidOperationException
-from utils import DecimalVector2
+from utils import DecimalVector2, InvalidOperationException
 
 class Scene(ABC):
     '''

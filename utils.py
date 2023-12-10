@@ -78,3 +78,6 @@ class DecimalVector2:
     @staticmethod 
     def raise_operand_error(obj: Any):
         raise ValueError("invalid operand: " + str(obj))
+    
+class InvalidOperationException(Exception):
+    pass
