@@ -150,7 +150,6 @@ class BlockMap:
         self.__offset_x = Decimal(BLOCK_MAP_SURFACE_WIDTH)
 
 READY_BLOCK_MAP_MAX_COUNT = 3
-BLOCK_MAP_INITIAL_MOVE_SPEED = Decimal(100)
 
 class BlockMapManager(SingletonEntity, DynamicEntity):
     '''
@@ -162,7 +161,15 @@ class BlockMapManager(SingletonEntity, DynamicEntity):
     __ready_blockmaps: Queue[BlockMap]
     __unready_blockmaps: Queue[BlockMap]
     
-    __move_speed: Decimal = BLOCK_MAP_INITIAL_MOVE_SPEED
+    __move_speed: Decimal = Decimal(0)
+
+    @property
+    def move_speed(self) -> Decimal:
+        return self.__move_speed
+    
+    @move_speed.setter
+    def move_speed(self, speed: Decimal):
+        self.__move_speed = speed
 
     def launch(self, init_callback: Callable[[BlockMap], None]):
         self.__blockmap1 = BlockMap()
@@ -170,6 +177,18 @@ class BlockMapManager(SingletonEntity, DynamicEntity):
         self.__ready_blockmaps = Queue()
         self.__unready_blockmaps = Queue()
         init_callback(self.__blockmap2)
+
+    def __test_touch_block_for_blockmap(self, bmap: BlockMap, x: Decimal, y: Decimal) -> bool:
+        block_pos = bmap.pos_world_to_block(x, y)
+        block = bmap.get_block(*block_pos)
+        return block != None
+
+    def test_touch_block(self, x: Decimal, y: Decimal) -> bool:
+        if self.__test_touch_block_for_blockmap(self.__blockmap1, x, y):
+            return True
+        if self.__test_touch_block_for_blockmap(self.__blockmap2, x, y):
+            return True
+        return False
 
     def on_tick(self):
         dt = gamebase.TICK_TIME

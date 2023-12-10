@@ -21,6 +21,8 @@ TICK_RATE = 100
 TICK_TIME = Decimal(1) / Decimal(TICK_RATE)
 TICK_TIME_FLOAT = float(TICK_TIME)
 
+GRAVITY_ACCEL = Decimal(100)
+
 _screen: pygame.Surface
 
 _active_scene: "Scene" = None # type:ignore
