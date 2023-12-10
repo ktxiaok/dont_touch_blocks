@@ -3,6 +3,7 @@ This module contains entities about player.
 '''
 
 from decimal import Decimal
+import decimal
 import blockmap
 from blockmap import BlockMapManager
 import gamebase
@@ -16,16 +17,16 @@ class PlayerInputManager(SingletonEntity, PygameEventListenerEntity):
 
     @property
     def request_jump(self) -> bool:
-        return self.__request_jump
+        result = self.__request_jump
+        self.__request_jump = False
+        return result
 
     def on_pygame_event(self, event: pygame.event.Event):
-        self.__request_jump = False
-
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_SPACE:
                 self.__request_jump = True
             
-PLAYER_JUMP_SPEED = Decimal(100)
+PLAYER_JUMP_SPEED = Decimal(300)
 PLAYER_OFFSET_X = 200
 PLAYER_INITIAL_POS_Y = Decimal(200)
 PLAYER_RADIUS = 20
