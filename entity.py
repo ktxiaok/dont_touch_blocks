@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from decimal import Decimal
 from utils import DecimalVector2
 from scene import Scene
+import pygame
 
 class Entity(ABC):
     '''
@@ -64,19 +65,48 @@ class Entity(ABC):
         self.__scene._remove_entity(self)
 
 class SingletonEntity(Entity):
+    '''
+    No more than one instance of this type is allowed in a scene.
+
+    Instances of this type can be accessed by Scene.get_singleton_entity. 
+    '''
+
     pass
 
 class PygameEventListenerEntity(Entity):
+    '''
+    Represents for a event listener entity for pygame events.
+    '''
+
     @abstractmethod
-    def on_pygame_event(self, event):
+    def on_pygame_event(self, event: pygame.event.Event):
+        '''
+        This method will be called when a pygame event occurs.
+
+        Args:
+            event: A pygame.event.Event instance that occurs.
+        '''
+
         pass
 
 class DynamicEntity(Entity):
+    '''
+    Entities of this type will be updated on every game tick(in other word, frame).
+    '''
+
     def on_tick(self):
+        '''
+        This method will be called on every game tick.
+        '''
+
         pass
 
 class PositionalEntity(Entity):
-    __pos = DecimalVector2()
+    '''
+    Represents for entities that have a 2d decimal position.
+    '''
+    
+    __pos: DecimalVector2 = DecimalVector2()
     
     @property
     def pos(self):

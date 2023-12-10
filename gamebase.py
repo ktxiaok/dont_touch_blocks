@@ -28,11 +28,19 @@ _scene_type_to_load: Optional[Type[Scene]] = None
 
 @property
 def screen():
+    '''
+    A pygame.Surface instance representing the main window.
+    '''
+
     global _screen
     return _screen
 
 @property
 def active_scene():
+    '''
+    A Scene instance representing the current active game scene.
+    '''
+
     global active_scene
     return active_scene
 
@@ -63,8 +71,14 @@ def run(initial_scene_type: Type(Scene)):
     '''
     Run the game!
 
-    There's a game loop inside this function.
-    The game updates a frame at set intervals. 
+    There's a game loop inside this function. The game updates a frame at set intervals. This function will exit when a quit event occurs.
+
+    Args:
+        initial_scene_type: The type of the first Scene instance the game will create.
+
+    Raises:
+        ValueError: The argument type is not correct.
+        TypeError: Arg initial_scene_type is not the subclass of Scene. 
     '''
 
     global _screen

@@ -9,7 +9,7 @@ class Scene(ABC):
     Represent for a stage of the game, a collection or manager of game entities.
 
     This class is responsible for managing a group of associated game entities, 
-    including spawning entities, updating entities, distributing events to entities, and so on.
+    including spawning entities, updating entities, distributing events to entities, and so on. Concrete scenes should be implemented by inheriting this class.
     '''
 
     __entities: Set[Entity] = None

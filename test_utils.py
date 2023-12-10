@@ -1,4 +1,6 @@
-# unit test for module 'utils'
+'''
+Unit test for module utils.
+'''
 
 import unittest
 from unittest import TestCase

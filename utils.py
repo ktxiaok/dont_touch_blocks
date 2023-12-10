@@ -1,9 +1,20 @@
-# some useful utils
+'''
+This module provides some useful tools.
+'''
 
 from decimal import Decimal
-
-# Try to convert the argument 'num' to a Decimal instance. If it failed, return 'num' itself. 
+ 
 def try_decimal(num):
+    '''
+    Try to convert the arg num to a Decimal object.
+
+    Args:
+        num: A numeric object trying to be converted to a Decimal object.
+
+    Returns:
+        A corresponding Decimal object will be returned if the type of arg num is int, float, or str. Otherwise arg num itself will be returned.
+    '''
+
     if isinstance(num, Decimal):
         return num
     elif isinstance(num, int) or isinstance(num, float) or isinstance(num, str):
@@ -11,10 +22,13 @@ def try_decimal(num):
     else:
         return num
 
-# 2d vector based on Decimal
 class DecimalVector2:
-    x = None
-    y = None
+    '''
+    Represents for a mathematical two-dimensional vector based on Decimal. 
+    '''
+
+    x: Decimal = None
+    y: Decimal = None
 
     def __init__(self, x = Decimal(0), y = Decimal(0)):
         x = try_decimal(x)
