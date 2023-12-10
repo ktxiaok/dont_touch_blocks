@@ -84,7 +84,7 @@ class BlockMap:
             IndexError: The specified position is out of the range.
         '''
 
-        return self.__blocks[y * BLOCK_MAP_WIDTH + x]
+        return self.__blocks[x * BLOCK_MAP_HEIGHT + y]
     
     def set_block(self, x: int, y: int, block: Optional[Block]):
         '''
@@ -99,7 +99,7 @@ class BlockMap:
             IndexError: The specified position is out of the range.
         '''
 
-        self.__blocks[y * BLOCK_MAP_WIDTH + x] = block
+        self.__blocks[x * BLOCK_MAP_HEIGHT + y] = block
 
     def pos_world_to_block(self, x: Decimal, y: Decimal) -> Tuple[int, int]:
         '''
@@ -124,11 +124,16 @@ class BlockMap:
         '''
 
         self.__surface.fill((0, 0, 0, 0))
-        for y in range(BLOCK_MAP_HEIGHT):
-            for x in range(BLOCK_MAP_WIDTH):
+        for x in range(BLOCK_MAP_WIDTH):
+            for y in range(BLOCK_MAP_HEIGHT):
                 block = self.get_block(x, y)
                 if block != None:
-                    draw.rect(self.__surface, block.color, Rect(x * BLOCK_SIDE_LEN, y * BLOCK_SIDE_LEN, BLOCK_SIDE_LEN, BLOCK_SIDE_LEN))
+                    draw.rect(
+                        self.__surface, block.color, 
+                        Rect(
+                            x * BLOCK_SIDE_LEN, y * BLOCK_SIDE_LEN, BLOCK_SIDE_LEN, BLOCK_SIDE_LEN
+                        )
+                    )
 
     def move(self, dx: Decimal):
         '''
