@@ -3,8 +3,11 @@ This module provides some useful tools.
 '''
 
 from decimal import Decimal
+from typing import Any, Union, Self
+
+Numeric = Union[int, float, str, Decimal]
  
-def try_decimal(num):
+def try_decimal(num: Any) -> Any:
     '''
     Try to convert the arg num to a Decimal object.
 
@@ -27,10 +30,10 @@ class DecimalVector2:
     Represents for a mathematical two-dimensional vector based on Decimal. 
     '''
 
-    x: Decimal = None
-    y: Decimal = None
+    x: Decimal
+    y: Decimal
 
-    def __init__(self, x = Decimal(0), y = Decimal(0)):
+    def __init__(self, x: Numeric = Decimal(0), y: Numeric = Decimal(0)):
         x = try_decimal(x)
         y = try_decimal(y)
         if not (isinstance(x, Decimal) and isinstance(y, Decimal)):
@@ -38,25 +41,25 @@ class DecimalVector2:
         self.x = x
         self.y = y
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any):
         if not isinstance(other, DecimalVector2):
             return False
         return self.x == other.x and self.y == other.y
     
-    def __add__(self, other):
+    def __add__(self, other: Self):
         if isinstance(other, DecimalVector2):
             return DecimalVector2(self.x + other.x, self.y + other.y)
         else:
             self.raise_operand_error(other)
     
-    def __sub__(self, other):
+    def __sub__(self, other: Self):
         if isinstance(other, DecimalVector2):
             return DecimalVector2(self.x - other.x, self.y - other.y)
         else:
             self.raise_operand_error(other)
 
     # if 'other' is a vector, it will do a dot product.
-    def __mul__(self, other):
+    def __mul__(self, other: Union[Self, Numeric]):
         other = try_decimal(other)
         if isinstance(other, DecimalVector2):
             return self.x * other.x + self.y * other.y
@@ -65,7 +68,7 @@ class DecimalVector2:
         else:
             self.raise_operand_error(other)
 
-    def __truediv__(self, other):
+    def __truediv__(self, other: Numeric):
         other = try_decimal(other)
         if isinstance(other, Decimal):
             return DecimalVector2(self.x / other, self.y / other)
@@ -73,5 +76,5 @@ class DecimalVector2:
             self.raise_operand_error(other)
 
     @staticmethod 
-    def raise_operand_error(obj):
+    def raise_operand_error(obj: Any):
         raise ValueError("invalid operand: " + str(obj))

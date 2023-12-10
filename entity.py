@@ -11,7 +11,7 @@ class Entity(ABC):
     A game entity is an individual having special function in the game scene. 
     '''
 
-    __scene: Scene = None
+    __scene: Scene
     
     __is_destroyed: bool = False
 

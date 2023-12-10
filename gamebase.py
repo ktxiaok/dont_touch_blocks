@@ -20,14 +20,13 @@ TICK_RATE = 100
 TICK_TIME = Decimal(1) / Decimal(TICK_RATE)
 TICK_TIME_FLOAT = float(TICK_TIME)
 
-_screen: pygame.Surface = None
+_screen: pygame.Surface
 
-_active_scene: Scene = None
+_active_scene: Scene = None # type:ignore
 
 _scene_type_to_load: Optional[Type[Scene]] = None 
 
-@property
-def screen():
+def get_screen():
     '''
     A pygame.Surface instance representing the main window.
     '''
@@ -35,14 +34,13 @@ def screen():
     global _screen
     return _screen
 
-@property
-def active_scene():
+def get_active_scene():
     '''
     A Scene instance representing the current active game scene.
     '''
 
-    global active_scene
-    return active_scene
+    global _active_scene
+    return _active_scene
 
 def request_load_scene(scene_type: Type[Scene]):
     '''
@@ -67,7 +65,7 @@ def request_load_scene(scene_type: Type[Scene]):
     
     _scene_type_to_load = scene_type
 
-def run(initial_scene_type: Type(Scene)):
+def run(initial_scene_type: Type[Scene]):
     '''
     Run the game!
 

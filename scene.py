@@ -1,3 +1,4 @@
+import typing
 from typing import List, Set, Dict, Type, Optional
 from abc import ABC, abstractmethod
 from entity import Entity, DynamicEntity, PygameEventListenerEntity, SingletonEntity
@@ -12,10 +13,10 @@ class Scene(ABC):
     including spawning entities, updating entities, distributing events to entities, and so on. Concrete scenes should be implemented by inheriting this class.
     '''
 
-    __entities: Set[Entity] = None
-    __dynamic_entities: List[DynamicEntity] = None
-    __pygame_event_listener_entities: List[PygameEventListenerEntity] = None
-    __singleton_entities: Dict[Type[SingletonEntity], SingletonEntity] = None
+    __entities: Set[Entity]
+    __dynamic_entities: List[DynamicEntity]
+    __pygame_event_listener_entities: List[PygameEventListenerEntity]
+    __singleton_entities: Dict[Type[SingletonEntity], SingletonEntity]
     
     def __init__(self):
         self.__entities = set()
@@ -68,7 +69,7 @@ class Scene(ABC):
         if isinstance(entity, SingletonEntity):
             if entity_type in self.__singleton_entities:
                 raise InvalidOperationException(f"Couldn't spawn the singleton entity of the type {entity_type}: there's alreay a instance!")
-            self.__singleton_entities[entity_type] = entity
+            self.__singleton_entities[typing.cast(Type[SingletonEntity], entity_type)] = entity
             
         entity.on_spawn()
 
