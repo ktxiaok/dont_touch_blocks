@@ -14,7 +14,7 @@ from utils import InvalidOperationException
 decimal.getcontext().prec = 6
 
 # constants
-WINDOW_DIMENSION = (1280, 720)
+WINDOW_DIMENSION = (1280, 800)
 BACKGROUND_COLOR = 'white'
 
 TICK_RATE = 100
