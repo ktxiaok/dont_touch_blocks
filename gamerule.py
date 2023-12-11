@@ -1,5 +1,6 @@
 import typing
 from blockmap import BlockMapManager
+from blockmap_generator import BlockMapGenerator
 import gamebase
 from decimal import Decimal
 from player import Player
@@ -9,6 +10,7 @@ class GameRule(SingletonEntity, DynamicEntity):
 
     __player: Player
     __blockmap_manager: BlockMapManager
+    __blockmap_generator: BlockMapGenerator
 
     __score: Decimal = Decimal(0)
     
@@ -22,6 +24,11 @@ class GameRule(SingletonEntity, DynamicEntity):
         self.__blockmap_manager = typing.cast(
             BlockMapManager, self.scene.get_singleton_entity(BlockMapManager)
         )
+        self.__blockmap_generator = typing.cast(
+            BlockMapGenerator, self.scene.get_singleton_entity(
+                BlockMapGenerator
+            )
+        )
 
     def on_tick(self):
         dt = gamebase.TICK_TIME
@@ -31,5 +38,7 @@ class GameRule(SingletonEntity, DynamicEntity):
             if self.__player.is_dead:
                 self.__is_game_over = True
                 self.__blockmap_manager.is_stopped = True
+                self.__blockmap_generator.destroy()
+                self.__blockmap_generator = None # type:ignore
         
         

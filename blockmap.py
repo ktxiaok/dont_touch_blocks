@@ -12,7 +12,7 @@ from scene import DynamicEntity, SingletonEntity
 from utils import ColorValue
 from decimal import Decimal
 
-BLOCK_SIDE_LEN = 20
+BLOCK_SIDE_LEN = 40
 
 class Block:
     '''
@@ -41,7 +41,9 @@ class BlockMap:
     __surface: Surface
     __offset_x: Decimal = Decimal(BLOCK_MAP_SURFACE_WIDTH)
 
-    def __init__(self):
+    def __init__(self, is_first: bool = False):
+        if is_first:
+            self.__offset_x = Decimal(0)
         self.__blocks = [None] * BLOCK_MAP_SIZE
         self.__surface = Surface(
             (BLOCK_MAP_SURFACE_WIDTH, BLOCK_MAP_SURFACE_HEIGHT), flags = pygame.SRCALPHA)
@@ -145,6 +147,17 @@ class BlockMap:
 
         self.__offset_x -= dx
 
+    @offset_x.setter
+    def offset_x(self, x: Decimal):
+        '''
+        Set the world offset x directly to avoid precision issue.
+
+        Args:
+            x: The world position x to set.
+        '''
+
+        self.__offset_x = x
+
     def recycle(self):
         '''
         Reset the block map and make it usable again.
@@ -165,8 +178,6 @@ class BlockMapManager(SingletonEntity, DynamicEntity):
     __blockmap2: BlockMap
     __ready_blockmaps: Queue[BlockMap]
     __unready_blockmaps: Queue[BlockMap]
-    
-    __move_speed: Decimal = Decimal(0)
 
     __is_stopped: bool = False
 
@@ -178,24 +189,20 @@ class BlockMapManager(SingletonEntity, DynamicEntity):
     def is_stopped(self, stopped: bool):
         self.__is_stopped = stopped
 
-    @property
-    def move_speed(self) -> Decimal:
-        return self.__move_speed
-    
-    @move_speed.setter
-    def move_speed(self, speed: Decimal):
-        self.__move_speed = speed
-
     def launch(self, init_callback: Callable[[BlockMap], None]):
-        self.__blockmap1 = BlockMap()
+        self.__blockmap1 = BlockMap(is_first = True)
         self.__blockmap2 = BlockMap()
         self.__ready_blockmaps = Queue()
         self.__unready_blockmaps = Queue()
         init_callback(self.__blockmap2)
 
     def __test_touch_block_for_blockmap(self, bmap: BlockMap, x: Decimal, y: Decimal) -> bool:
-        block_pos = bmap.pos_world_to_block(x, y)
-        block = bmap.get_block(*block_pos)
+        bpos_x, bpos_y = bmap.pos_world_to_block(x, y)
+        if bpos_x < 0 or bpos_x >= BLOCK_MAP_WIDTH:
+            return False
+        if bpos_y < 0 or bpos_y >= BLOCK_MAP_HEIGHT:
+            return False
+        block = bmap.get_block(bpos_x, bpos_y)
         return block != None
 
     def test_touch_block(self, x: Decimal, y: Decimal) -> bool:
@@ -206,8 +213,6 @@ class BlockMapManager(SingletonEntity, DynamicEntity):
         return False
 
     def on_tick(self):
-        if self.__is_stopped:
-            return
         dt = gamebase.TICK_TIME
         if self.__blockmap1.is_invalid:
             unready_blockmap = self.__blockmap1
@@ -221,17 +226,25 @@ class BlockMapManager(SingletonEntity, DynamicEntity):
             if unready_blockmap_count_need > 0:
                 for i in range(unready_blockmap_count_need):
                     self.__unready_blockmaps.put(BlockMap())
-        dx = self.__move_speed * dt
-        self.__blockmap1.move(dx)
-        self.__blockmap2.move(dx)
+        
+        
         screen = gamebase.get_screen()
         screen.blit(
-            self.__blockmap1.surface, (int(self.__blockmap1.offset_x), 0))
+            self.__blockmap1.surface, (int(self.__blockmap1.offset_x), 0)
+        )
         screen.blit(
-            self.__blockmap2.surface, (int(self.__blockmap2.offset_x), 0))
+            self.__blockmap2.surface, (int(self.__blockmap2.offset_x), 0)
+        )
+        
+    def move(self, dx: Decimal):
+        self.__blockmap1.move(dx)
+        self.__blockmap2.offset_x = self.__blockmap1.offset_x + BLOCK_MAP_SURFACE_WIDTH
 
-    def get_unready_blockmap(self) -> BlockMap:
-        return self.__unready_blockmaps.get()
+    def try_get_unready_blockmap(self) -> Optional[BlockMap]:
+        try:
+            return self.__unready_blockmaps.get_nowait()
+        except:
+            return None
     
     def put_ready_blockmap(self, blockmap: BlockMap):
         self.__ready_blockmaps.put(blockmap)

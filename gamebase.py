@@ -11,7 +11,7 @@ from pygame import display
 from scene import Scene
 from utils import InvalidOperationException
 
-decimal.getcontext().prec = 6
+decimal.getcontext().prec = 5
 
 # constants
 WINDOW_DIMENSION = (1280, 800)
@@ -21,7 +21,9 @@ TICK_RATE = 100
 TICK_TIME = Decimal(1) / Decimal(TICK_RATE)
 TICK_TIME_FLOAT = float(TICK_TIME)
 
-GRAVITY_ACCEL = Decimal(500)
+GRAVITY_ACCEL = Decimal(1000)
+
+PRINT_INTERVAL = 50
 
 _screen: pygame.Surface
 
@@ -93,6 +95,7 @@ def run(initial_scene_type: Type["Scene"]):
     _screen = display.set_mode(WINDOW_DIMENSION)
     clock = pygame.time.Clock()
     request_quit = False
+    print_timer = PRINT_INTERVAL
 
     while True:
         # check whether there's a request to load a new scene.
@@ -118,10 +121,13 @@ def run(initial_scene_type: Type["Scene"]):
         _screen.fill(BACKGROUND_COLOR)
 
         # tick time calculation and tick call
-        dt = clock.tick(TICK_RATE) / 1000
+        dt = clock.tick_busy_loop(TICK_RATE) / 1000
         _active_scene._tick()
         latency = dt - TICK_TIME_FLOAT
         if latency > 0.005:
-            print("WARNING: Performance issue. Latency: " + str(latency))
+            print_timer += 1
+            if print_timer > PRINT_INTERVAL:
+                print_timer = 0
+                print(f"WARNING: Performance issue. Latency: {latency}")
         
         display.flip()

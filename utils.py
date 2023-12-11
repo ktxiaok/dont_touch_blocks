@@ -3,12 +3,12 @@ This module provides some useful tools.
 '''
 
 from decimal import Decimal
-from typing import Any, Tuple, Union, Self
+from typing import Any, Sequence, Tuple, Union, Self
 
 from pygame import Color
 
 Numeric = Union[int, float, str, Decimal]
-ColorValue = Union[Color, str, Tuple[int, int, int], Tuple[int, int, int, int]]
+ColorValue = Union[Color, str, Sequence[int]]
  
 def try_decimal(num: Any) -> Any:
     '''

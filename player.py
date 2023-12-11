@@ -26,10 +26,18 @@ class PlayerInputManager(SingletonEntity, PygameEventListenerEntity):
             if event.key == pygame.K_SPACE:
                 self.__request_jump = True
             
-PLAYER_JUMP_SPEED = Decimal(300)
+PLAYER_JUMP_SPEED = Decimal(285)
+PLAYER_JUMP_HEIGHT = (PLAYER_JUMP_SPEED ** 2) / (2 * gamebase.GRAVITY_ACCEL)
+
 PLAYER_OFFSET_X = 200
 PLAYER_INITIAL_POS_Y = Decimal(200)
-PLAYER_RADIUS = 20
+
+PLAYER_RADIUS = 5
+
+PLAYER_INITIAL_SPEED = Decimal(200)
+PLAYER_MAX_SPEED = Decimal(400)
+PLAYER_SPEED_ACCEL_TO_MAX_TIME = Decimal(180)
+PLAYER_SPEED_ACCEL = (PLAYER_MAX_SPEED - PLAYER_INITIAL_SPEED) / PLAYER_SPEED_ACCEL_TO_MAX_TIME
 
 class Player(SingletonEntity, DynamicEntity):
 
