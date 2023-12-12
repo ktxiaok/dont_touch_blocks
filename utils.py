@@ -3,7 +3,7 @@ This module provides some useful tools.
 '''
 
 from decimal import Decimal
-from typing import Any, Sequence, Tuple, Union, Self
+from typing import Any, NoReturn, Sequence, Tuple, Union, Self
 
 from pygame import Color
 
@@ -44,25 +44,25 @@ class DecimalVector2:
         self.x = x
         self.y = y
 
-    def __eq__(self, other: Any):
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, DecimalVector2):
             return False
         return self.x == other.x and self.y == other.y
     
-    def __add__(self, other: Self):
+    def __add__(self, other: Self) -> Self:
         if isinstance(other, DecimalVector2):
             return DecimalVector2(self.x + other.x, self.y + other.y)
         else:
             self.raise_operand_error(other)
     
-    def __sub__(self, other: Self):
+    def __sub__(self, other: Self) -> Self:
         if isinstance(other, DecimalVector2):
             return DecimalVector2(self.x - other.x, self.y - other.y)
         else:
             self.raise_operand_error(other)
 
     # if 'other' is a vector, it will do a dot product.
-    def __mul__(self, other: Union[Self, Numeric]):
+    def __mul__(self, other: Union[Self, Numeric]) -> Union[Decimal, Self]:
         other = try_decimal(other)
         if isinstance(other, DecimalVector2):
             return self.x * other.x + self.y * other.y
@@ -71,7 +71,7 @@ class DecimalVector2:
         else:
             self.raise_operand_error(other)
 
-    def __truediv__(self, other: Numeric):
+    def __truediv__(self, other: Numeric) -> Self:
         other = try_decimal(other)
         if isinstance(other, Decimal):
             return DecimalVector2(self.x / other, self.y / other)
@@ -79,7 +79,7 @@ class DecimalVector2:
             self.raise_operand_error(other)
 
     @staticmethod 
-    def raise_operand_error(obj: Any):
+    def raise_operand_error(obj: Any) -> NoReturn:
         raise ValueError("invalid operand: " + str(obj))
     
 class InvalidOperationException(Exception):
