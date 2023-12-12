@@ -79,25 +79,17 @@ class DecimalVector2:
         else:
             self.raise_operand_error(other)
 
-    def __iadd__(self, other: Self):
-        v = self + other
-        self.x = v.x
-        self.y = v.y
+    def __iadd__(self, other: Self) -> Self:
+        return self + other
 
-    def __isub__(self, other: Self):
-        v = self - other
-        self.x = v.x
-        self.y = v.y
+    def __isub__(self, other: Self) -> Self:
+        return self - other
 
-    def __imul__(self, other: Numeric):
-        v = typing.cast(DecimalVector2, self * other)
-        self.x = v.x
-        self.y = v.y
+    def __imul__(self, other: Numeric) -> Self:
+        return typing.cast(DecimalVector2, self * other)
 
-    def __idiv__(self, other: Numeric):
-        v = self / other
-        self.x = v.x
-        self.y = v.y
+    def __idiv__(self, other: Numeric) -> Self:
+        return self / other
 
     @staticmethod 
     def raise_operand_error(obj: Any) -> NoReturn:
