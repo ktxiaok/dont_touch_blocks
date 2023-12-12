@@ -4,6 +4,7 @@ This module provides some useful tools.
 
 from decimal import Decimal
 from typing import Any, NoReturn, Sequence, Tuple, Union, Self
+import typing
 
 from pygame import Color
 
@@ -77,6 +78,26 @@ class DecimalVector2:
             return DecimalVector2(self.x / other, self.y / other)
         else:
             self.raise_operand_error(other)
+
+    def __iadd__(self, other: Self):
+        v = self + other
+        self.x = v.x
+        self.y = v.y
+
+    def __isub__(self, other: Self):
+        v = self - other
+        self.x = v.x
+        self.y = v.y
+
+    def __imul__(self, other: Numeric):
+        v = typing.cast(DecimalVector2, self * other)
+        self.x = v.x
+        self.y = v.y
+
+    def __idiv__(self, other: Numeric):
+        v = self / other
+        self.x = v.x
+        self.y = v.y
 
     @staticmethod 
     def raise_operand_error(obj: Any) -> NoReturn:
