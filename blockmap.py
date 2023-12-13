@@ -2,6 +2,7 @@
 This module is mainly about a data structure 'block map'.
 '''
 
+import decimal
 from queue import Queue
 from typing import Callable, List, Optional, Tuple
 import pygame
@@ -116,8 +117,10 @@ class BlockMap:
         '''
 
         origin_x = self.__offset_x
-        block_x = int((x - origin_x) / BLOCK_SIDE_LEN)
-        block_y = int(y / BLOCK_SIDE_LEN)
+        block_x = int(((x - origin_x) / BLOCK_SIDE_LEN).quantize(
+            Decimal(1), rounding = decimal.ROUND_FLOOR))
+        block_y = int((y / BLOCK_SIDE_LEN).quantize(
+            Decimal(1), rounding = decimal.ROUND_FLOOR))
         return (block_x, block_y)
 
     def refresh(self):

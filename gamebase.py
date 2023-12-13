@@ -6,7 +6,6 @@ from typing import Type, Optional
 import decimal
 from decimal import Decimal
 import pygame
-from pygame.locals import *
 from pygame import display
 from scene import Scene
 from utils import InvalidOperationException
@@ -15,7 +14,7 @@ decimal.getcontext().prec = 5
 
 # constants
 WINDOW_DIMENSION = (1280, 800)
-BACKGROUND_COLOR = 'white'
+BACKGROUND_COLOR = (205, 201, 201)
 
 TICK_RATE = 100
 TICK_TIME = Decimal(1) / Decimal(TICK_RATE)
@@ -92,7 +91,7 @@ def run(initial_scene_type: Type["Scene"]):
     
     # init pygame
     pygame.init()
-    _screen = display.set_mode(WINDOW_DIMENSION)
+    _screen = display.set_mode(WINDOW_DIMENSION, vsync = 1)
     clock = pygame.time.Clock()
     request_quit = False
     print_timer = PRINT_INTERVAL
@@ -108,7 +107,7 @@ def run(initial_scene_type: Type["Scene"]):
         
         # poll for events
         for event in pygame.event.get():
-            if event.type == QUIT:
+            if event.type == pygame.QUIT:
                 request_quit = True
             _active_scene._send_pygame_event(event)
         
