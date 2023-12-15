@@ -116,6 +116,7 @@ def run(initial_scene_name: str):
     
     # init
     _screen = display.set_mode(WINDOW_DIMENSION, vsync = 1)
+    display.set_caption("Don't Touch Blocks")
     clock = pygame.time.Clock()
     request_quit = False
     print_timer = PRINT_INTERVAL
