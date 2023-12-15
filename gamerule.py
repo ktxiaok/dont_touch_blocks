@@ -5,6 +5,7 @@ import gamebase
 from decimal import Decimal
 from player import Player
 from scene import DynamicEntity, SingletonEntity
+import gamesave
 
 class GameRule(SingletonEntity, DynamicEntity):
     '''
@@ -20,6 +21,9 @@ class GameRule(SingletonEntity, DynamicEntity):
     
     __is_game_over: bool = False
 
+    __is_new_best_score: bool = False
+    __best_score: Decimal = Decimal(0)
+
     @property
     def is_game_over(self) -> bool:
         
@@ -34,6 +38,16 @@ class GameRule(SingletonEntity, DynamicEntity):
     def player_speed(self) -> Decimal:
         
         return self.__player_speed
+    
+    @property
+    def is_new_best_score(self) -> bool:
+
+        return self.__is_new_best_score
+    
+    @property
+    def best_score(self) -> Decimal:
+        
+        return self.__best_score
 
     def on_spawn(self):
         super().on_spawn()
@@ -60,5 +74,12 @@ class GameRule(SingletonEntity, DynamicEntity):
                 self.__blockmap_manager.is_stopped = True
                 self.__blockmap_generator.destroy()
                 self.__blockmap_generator = None # type:ignore
+                score = self.score.quantize(Decimal("1.0"))
+                best_score = gamesave.get_best_score()
+                if score > best_score:
+                    self.__is_new_best_score = True
+                    best_score = score
+                    gamesave.set_best_score(best_score)
+                self.__best_score = best_score
         
         
