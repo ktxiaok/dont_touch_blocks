@@ -29,7 +29,8 @@ class FullscreenSwitcher(DynamicEntity):
             PlayerInputManager, 
             self.scene.get_singleton_entity(PlayerInputManager)
         )
-        if gamesave.is_fullscreen():
+
+        if gamesave.is_fullscreen() ^ pygame.display.is_fullscreen():
             pygame.display.toggle_fullscreen()
 
     def on_tick(self):

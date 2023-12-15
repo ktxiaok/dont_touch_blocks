@@ -49,9 +49,12 @@ class GameUi(DynamicEntity):
 
     __text_gameover: Surface
     __text_gameover_key_hint: Surface
+    __text_best_score: Surface
 
     __gameover_accept_key_timer: float = 0.0
     __gameover_accept_key: bool = False
+
+    __on_gameover_called: bool = False
 
     def on_spawn(self):
         
@@ -73,71 +76,84 @@ class GameUi(DynamicEntity):
 
         game_rule = self.__game_rule
         if game_rule.is_game_over:
+            if not self.__on_gameover_called:
+                self.__on_gameover_called = True
+                self.__on_game_over()
             self.__tick_game_over()
         else:
             self.__tick_during_game()
-        
-
-    def __tick_during_game(self):
-
-        screen = gamebase.get_screen()
-        font = gamebase.get_default_font()
+    
+    def __update_score(self):
         game_rule = self.__game_rule
-
+        font = gamebase.get_default_font()
         score = game_rule.score.quantize(Decimal("1.0"))
         if score != self.__last_score:
             self.__last_score = score
             self.__last_text_score = font.render(
                 "Score: " + str(score), True, SCORE_COLOR
             )
-        text_score = self.__last_text_score
-        if text_score != None:
-            screen.blit(
-                text_score, (SCORE_POS_X, SCORE_POS_Y)
-            )
-        
+
+    def __update_speed(self):
+        game_rule = self.__game_rule
+        font = gamebase.get_default_font()
         speed = game_rule.player_speed.quantize(Decimal("1.0"))
         if speed != self.__last_speed:
             self.__last_speed = speed
             self.__last_text_speed = font.render(
                 "Speed: " + str(speed), True, SPEED_COLOR
             )
+
+    def __tick_during_game(self):
+
+        screen = gamebase.get_screen()
+
+        self.__update_score()
+        text_score = self.__last_text_score
+        if text_score != None:
+            screen.blit(
+                text_score, (SCORE_POS_X, SCORE_POS_Y)
+            )
+        
+        self.__update_speed()
         text_speed = self.__last_text_speed
         if text_speed != None:
             screen.blit(
                 text_speed, (SPEED_POS_X, SPEED_POS_Y)
             )
 
-    def __tick_game_over(self):
-        screen = gamebase.get_screen()
+    def __on_game_over(self):
         game_rule = self.__game_rule
         font = gamebase.get_default_font()
+
+        self.__update_score()
+        self.__update_speed()
+        prefix_best_score = "NEW Best Score: " if game_rule.is_new_best_score else "Best Score: "
+        self.__text_best_score = font.render(
+            prefix_best_score + str(game_rule.best_score), True, BEST_SCORE_COLOR
+        )
+    
+    def __tick_game_over(self):
+        screen = gamebase.get_screen()
+
         screen.fill(MASK_COLOR, special_flags = pygame.BLEND_RGB_MULT)
         text_gameover = self.__text_gameover
         screen.blit(
             text_gameover,
             (GAMEOVER_POS_X - text_gameover.get_width() // 2, GAMEOVER_POS_Y)
         )
-        text_score = font.render(
-            "Score: " + str(self.__last_score), True, SCORE_COLOR
-        )
+        text_score = typing.cast(Surface, self.__last_text_score)
         screen.blit(
             text_score,
             (GAMEOVER_SCORE_POS_X - text_score.get_width() // 2,
              GAMEOVER_SCORE_POS_Y)
         )
-        text_speed = font.render(
-            "Speed: " + str(self.__last_speed), True, SPEED_COLOR
-        )
+        text_speed = typing.cast(Surface, self.__last_text_speed)
         screen.blit(
             text_speed, 
             (GAMEOVER_SPEED_POS_X - text_speed.get_width() // 2, 
              GAMEOVER_SPEED_POS_Y)
         )
-        prefix_best_score = "NEW Best Score: " if game_rule.is_new_best_score else "Best Score: "
-        text_best_score = font.render(
-            prefix_best_score + str(game_rule.best_score), True, BEST_SCORE_COLOR
-        )
+        text_best_score = self.__text_best_score
         screen.blit(
             text_best_score,
             (GAMEOVER_BEST_SCORE_POS_X - text_best_score.get_width() // 2, 
