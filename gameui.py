@@ -149,5 +149,4 @@ class GameUi(DynamicEntity):
         if self.__gameover_accept_key:
             input_manager = self.__player_input_manager
             if input_manager.request_jump:
-                pass
-                # gamebase.request_load_scene("GameScene")
+                gamebase.request_load_scene("GameScene")

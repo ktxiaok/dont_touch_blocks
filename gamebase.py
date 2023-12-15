@@ -62,30 +62,39 @@ def get_active_scene():
     global _active_scene
     return _active_scene
 
-def request_load_scene(scene_type: Type["Scene"]):
+def register_scene(name: str, scene_type: Type["Scene"]):
+    '''
+    Register a scene type.
+
+    Args:
+        name: The scene name to register.
+        scene_type: The scene type object to register.
+    '''
+
+    global _scene_type_dict
+
+    _scene_type_dict[name] = scene_type
+
+def request_load_scene(name: str):
     '''
     Request to destroy current scene and load a new scene.
     
     Args:
-        scene_type: The class object of the scene to load.
+        name: The registered scene name to load.
 
     Raises:
-        ValueError: The argument type is not correct.
-        TypeError: Arg scene_type is not the subclass of Scene.
         InvalidOperationException: There is already a scene ready to load.
     '''
 
     global _scene_type_to_load
-    if not isinstance(scene_type, type):
-        raise ValueError("Arg scene_type must be a type object!")
-    if not issubclass(scene_type, Scene):
-        raise TypeError("Arg scene_type must be the subclass of Scene!")
+    global _scene_type_dict
+
     if _scene_type_to_load != None:
         raise InvalidOperationException("There is already a scene ready to load!")
     
-    _scene_type_to_load = scene_type
+    _scene_type_to_load = _scene_type_dict[name]
 
-def run(initial_scene_type: Type["Scene"]):
+def run(initial_scene_name: str):
     '''
     Run the game!
 
@@ -103,7 +112,7 @@ def run(initial_scene_type: Type["Scene"]):
     global _active_scene
     global _scene_type_to_load
 
-    request_load_scene(initial_scene_type)
+    request_load_scene(initial_scene_name)
     
     # init
     _screen = display.set_mode(WINDOW_DIMENSION, vsync = 1)
