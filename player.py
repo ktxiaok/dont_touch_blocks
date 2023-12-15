@@ -11,20 +11,40 @@ from scene import Scene, DynamicEntity, PygameEventListenerEntity, SingletonEnti
 import pygame
 from pygame import draw
 
-class PlayerInputManager(SingletonEntity, PygameEventListenerEntity):
+class PlayerInputManager(SingletonEntity, PygameEventListenerEntity, DynamicEntity):
     
     __request_jump: bool = False
+    __request_escape: bool = False
+    __request_fullscreen: bool = False
 
     @property
     def request_jump(self) -> bool:
-        result = self.__request_jump
-        self.__request_jump = False
-        return result
+        return self.__request_jump
+    
+    @property
+    def request_escape(self) -> bool:
+        return self.__request_escape
+    
+    @property
+    def request_fullscreen(self) -> bool:
+        return self.__request_fullscreen
 
     def on_pygame_event(self, event: pygame.event.Event):
         if event.type == pygame.KEYUP:
-            if event.key == pygame.K_SPACE:
+            key = event.key
+            if key == pygame.K_SPACE:
                 self.__request_jump = True
+            elif key == pygame.K_ESCAPE:
+                self.__request_escape = True
+            elif key == pygame.K_f:
+                self.__request_fullscreen = True
+    
+    def on_late_tick(self):
+        
+        self.__request_jump = False
+        self.__request_escape = False
+        self.__request_fullscreen = False
+
             
 PLAYER_JUMP_SPEED = Decimal(285)
 PLAYER_JUMP_HEIGHT = (PLAYER_JUMP_SPEED ** 2) / (2 * gamebase.GRAVITY_ACCEL)
