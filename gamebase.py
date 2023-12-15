@@ -11,6 +11,7 @@ from pygame.font import Font
 from scene import Scene
 from utils import InvalidOperationException
 import gamesave
+import gc
 
 pygame.init()
 
@@ -132,6 +133,7 @@ def run(initial_scene_name: str):
             _active_scene = _scene_type_to_load()
             _active_scene.on_create()
             _scene_type_to_load = None
+            gc.collect()
         
         # poll for events
         for event in pygame.event.get():
