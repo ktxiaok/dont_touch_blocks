@@ -161,3 +161,5 @@ class GameUi(DynamicEntity):
             input_manager = self.__player_input_manager
             if input_manager.request_jump:
                 gamebase.request_load_scene("GameScene")
+            if input_manager.request_escape:
+                gamebase.request_load_scene("MenuScene")
