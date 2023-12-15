@@ -106,6 +106,8 @@ class Scene(ABC):
         entity_buffer = self.__dynamic_entities.copy()
         for entity in entity_buffer:
             entity.on_tick()
+        for entity in entity_buffer:
+            entity.on_late_tick()
     
     def _send_pygame_event(self, event: pygame.event.Event):
         '''
@@ -211,6 +213,13 @@ class DynamicEntity(Entity):
     def on_tick(self):
         '''
         This method will be called on every game tick.
+        '''
+
+        pass
+
+    def on_late_tick(self):
+        '''
+        This method will be called after the method on_tick of all entities is called
         '''
 
         pass
