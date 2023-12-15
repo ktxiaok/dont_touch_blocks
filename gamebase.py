@@ -2,13 +2,16 @@
 This is the basic framework of the entire game program. 
 '''
 
-from typing import Type, Optional
+from typing import Dict, Type, Optional
 import decimal
 from decimal import Decimal
 import pygame
 from pygame import display
+from pygame.font import Font
 from scene import Scene
 from utils import InvalidOperationException
+
+pygame.init()
 
 decimal.getcontext().prec = 5
 
@@ -26,9 +29,14 @@ PRINT_INTERVAL = 50
 
 _screen: pygame.Surface
 
+_default_font: Font = Font(None, size = 50)
+_default_font.set_bold(True)
+
 _active_scene: "Scene" = None # type:ignore
 
 _scene_type_to_load: Optional[Type["Scene"]] = None 
+
+_scene_type_dict: Dict[str, Type["Scene"]] = {}
 
 def get_screen():
     '''
@@ -37,6 +45,14 @@ def get_screen():
 
     global _screen
     return _screen
+
+def get_default_font():
+    '''
+    Returns a default pygame.font.Font instance.
+    '''
+
+    global _default_font
+    return _default_font
 
 def get_active_scene():
     '''
@@ -89,8 +105,7 @@ def run(initial_scene_type: Type["Scene"]):
 
     request_load_scene(initial_scene_type)
     
-    # init pygame
-    pygame.init()
+    # init
     _screen = display.set_mode(WINDOW_DIMENSION, vsync = 1)
     clock = pygame.time.Clock()
     request_quit = False

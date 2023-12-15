@@ -47,6 +47,11 @@ class BlockMapGenerator(SingletonEntity, DynamicEntity):
     __work_thread: Thread
     __thread_stop_flag: bool = False
 
+    @property
+    def player_speed(self) -> Decimal:
+
+        return self.__blockmap_speed
+
     def on_spawn(self):
         super().on_spawn()
         self.__blockmap_manager = typing.cast(
