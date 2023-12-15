@@ -4,6 +4,7 @@ import typing
 import pygame
 from player import PlayerInputManager
 from scene import DynamicEntity, Scene
+import gamesave
 
 
 class BasicScene(Scene):
@@ -28,9 +29,12 @@ class FullscreenSwitcher(DynamicEntity):
             PlayerInputManager, 
             self.scene.get_singleton_entity(PlayerInputManager)
         )
+        if gamesave.is_fullscreen():
+            pygame.display.toggle_fullscreen()
 
     def on_tick(self):
         
         input_manager = self.__input_manager
         if input_manager.request_fullscreen:
             pygame.display.toggle_fullscreen()
+            gamesave.set_fullscreen(pygame.display.is_fullscreen())

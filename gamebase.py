@@ -10,8 +10,11 @@ from pygame import display
 from pygame.font import Font
 from scene import Scene
 from utils import InvalidOperationException
+import gamesave
 
 pygame.init()
+
+gamesave.load()
 
 decimal.getcontext().prec = 5
 
