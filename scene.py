@@ -108,6 +108,20 @@ class Scene(ABC):
             entity.on_tick()
         for entity in entity_buffer:
             entity.on_late_tick()
+
+    def _destroy(self):
+        '''
+        Destroy the scene.
+
+        This method can only be called by the module gamebase!
+        '''
+
+        entity_buffer: List[Entity] = []
+        for entity in self.__entities:
+            entity_buffer.append(entity)
+        for entity in entity_buffer:
+            entity.destroy()
+        self.on_destroy()
     
     def _send_pygame_event(self, event: pygame.event.Event):
         '''

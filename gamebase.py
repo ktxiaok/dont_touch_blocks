@@ -129,7 +129,7 @@ def run(initial_scene_name: str):
         # check whether there's a request to load a new scene.
         if _scene_type_to_load != None:
             if _active_scene != None: 
-                _active_scene.on_destroy()
+                _active_scene._destroy()
             _active_scene = _scene_type_to_load()
             _active_scene.on_create()
             _scene_type_to_load = None
