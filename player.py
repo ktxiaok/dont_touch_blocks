@@ -10,6 +10,7 @@ import gamebase
 from scene import Scene, DynamicEntity, PygameEventListenerEntity, SingletonEntity
 import pygame
 from pygame import draw
+import globalresources
 
 class PlayerInputManager(SingletonEntity, PygameEventListenerEntity, DynamicEntity):
     
@@ -84,6 +85,7 @@ class Player(SingletonEntity, DynamicEntity):
         input_manager = self.__input_manager
         if input_manager.request_jump:
             self.__speed_y = -PLAYER_JUMP_SPEED
+            globalresources.SND_JUMP.play()
         g_accel = gamebase.GRAVITY_ACCEL
         self.__speed_y += g_accel * dt 
         self.__pos_y += self.__speed_y * dt

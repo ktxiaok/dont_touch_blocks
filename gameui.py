@@ -11,14 +11,16 @@ import gamebase
 from gamerule import GameRule
 from player import PlayerInputManager
 from scene import DynamicEntity
+import globalresources
 
 FONT_HEIGHT = gamebase.get_default_font().get_height()
 SCORE_COLOR = Color("yellow")
 SPEED_COLOR = Color("aqua")
 GAMEOVER_COLOR = Color("red")
 BEST_SCORE_COLOR = Color("orange")
+NEW_BEST_SCORE_COLOR = Color("chartreuse")
 MASK_COLOR = Color(100, 100, 100)
-SCORE_POS_X = 30
+SCORE_POS_X = gamebase.WINDOW_DIMENSION[0] // 2 - 100
 SCORE_POS_Y = 50
 SPEED_POS_X = SCORE_POS_X
 SPEED_POS_Y = SCORE_POS_Y + FONT_HEIGHT + 10
@@ -123,14 +125,24 @@ class GameUi(DynamicEntity):
 
     def __on_game_over(self):
         game_rule = self.__game_rule
+        is_new_best_score = game_rule.is_new_best_score
         font = gamebase.get_default_font()
 
         self.__update_score()
         self.__update_speed()
-        prefix_best_score = "NEW Best Score: " if game_rule.is_new_best_score else "Best Score: "
-        self.__text_best_score = font.render(
-            prefix_best_score + str(game_rule.best_score), True, BEST_SCORE_COLOR
+        prefix_best_score = (
+            "NEW Best Score: " if is_new_best_score 
+            else "Best Score: "
         )
+        self.__text_best_score = font.render(
+            prefix_best_score + str(game_rule.best_score), True, NEW_BEST_SCORE_COLOR if is_new_best_score else BEST_SCORE_COLOR
+        )
+
+        gameover_sound = (
+            globalresources.SND_NEW_BEST_SCORE if is_new_best_score 
+            else globalresources.SND_DEAD
+        )
+        gameover_sound.play()
     
     def __tick_game_over(self):
         screen = gamebase.get_screen()

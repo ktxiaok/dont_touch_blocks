@@ -12,10 +12,13 @@ from scene import Scene
 from utils import InvalidOperationException
 import gamesave
 import gc
+import globalresources
 
 pygame.init()
 
 gamesave.load()
+
+globalresources._load()
 
 decimal.getcontext().prec = 5
 
