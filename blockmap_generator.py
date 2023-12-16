@@ -72,6 +72,7 @@ class BlockMapGenerator(SingletonEntity, DynamicEntity):
     def on_destroy(self):
         super().on_destroy()
         self.__thread_stop_flag = True
+        self.__work_thread.join()
 
     def on_tick(self):
         dt = gamebase.TICK_TIME

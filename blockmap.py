@@ -42,9 +42,7 @@ class BlockMap:
     __surface: Surface
     __offset_x: Decimal = Decimal(BLOCK_MAP_SURFACE_WIDTH)
 
-    def __init__(self, is_first: bool = False):
-        if is_first:
-            self.__offset_x = Decimal(0)
+    def __init__(self):
         self.__blocks = [None] * BLOCK_MAP_SIZE
         self.__surface = Surface(
             (BLOCK_MAP_SURFACE_WIDTH, BLOCK_MAP_SURFACE_HEIGHT), flags = pygame.SRCALPHA)
@@ -170,17 +168,20 @@ class BlockMap:
             self.__blocks[i] = None
         self.__offset_x = Decimal(BLOCK_MAP_SURFACE_WIDTH)
 
-READY_BLOCK_MAP_MAX_COUNT = 3
+BLOCK_MAP_POOL_SIZE = 2 + 2
+_blockmap_pool: List[BlockMap] = [
+    BlockMap() for _ in range(BLOCK_MAP_POOL_SIZE)
+]
 
 class BlockMapManager(SingletonEntity, DynamicEntity):
     '''
     A manager of all block maps in a game scene.
     '''
     
-    __blockmap1: BlockMap
-    __blockmap2: BlockMap
-    __ready_blockmaps: Queue[BlockMap]
-    __unready_blockmaps: Queue[BlockMap]
+    __blockmap1: BlockMap # a blockmap closer to the player
+    __blockmap2: BlockMap # a blockmap farther away the player
+    __ready_blockmaps: Queue[BlockMap] # generated blockmaps ready to use
+    __unready_blockmaps: Queue[BlockMap] # blockmaps that need to be generated
 
     __is_stopped: bool = False
 
@@ -193,11 +194,42 @@ class BlockMapManager(SingletonEntity, DynamicEntity):
         self.__is_stopped = stopped
 
     def launch(self, init_callback: Callable[[BlockMap], None]):
-        self.__blockmap1 = BlockMap(is_first = True)
-        self.__blockmap2 = BlockMap()
+        global _blockmap_pool
+
+        # get all blockmaps from the pool.
+        self.__blockmap1 = _blockmap_pool.pop()
+        self.__blockmap1.refresh()
+        self.__blockmap1.offset_x = Decimal(0)
+        self.__blockmap2 = _blockmap_pool.pop()
         self.__ready_blockmaps = Queue()
         self.__unready_blockmaps = Queue()
+        while len(_blockmap_pool) > 0:
+            self.__unready_blockmaps.put(_blockmap_pool.pop())
         init_callback(self.__blockmap2)
+
+    def on_destroy(self):
+
+        super().on_destroy()
+        global _blockmap_pool
+
+        # return all blockmaps to the pool.
+        self.__blockmap1.recycle()
+        self.__blockmap2.recycle()
+        
+        _blockmap_pool += (self.__blockmap1, self.__blockmap2)
+        while len(_blockmap_pool) != BLOCK_MAP_POOL_SIZE:
+            try:
+                bmap = self.__ready_blockmaps.get_nowait()
+                bmap.recycle()
+                _blockmap_pool.append(bmap)
+            except:
+                pass
+            try:
+                bmap = self.__unready_blockmaps.get_nowait()
+                _blockmap_pool.append(bmap)
+            except:
+                pass
+        
 
     def __test_touch_block_for_blockmap(self, bmap: BlockMap, x: Decimal, y: Decimal) -> bool:
         bpos_x, bpos_y = bmap.pos_world_to_block(x, y)
@@ -223,13 +255,6 @@ class BlockMapManager(SingletonEntity, DynamicEntity):
             self.__unready_blockmaps.put(unready_blockmap)
             self.__blockmap1 = self.__blockmap2
             self.__blockmap2 = self.__ready_blockmaps.get()
-        blockmap_count_need = READY_BLOCK_MAP_MAX_COUNT - self.__ready_blockmaps.qsize()
-        if blockmap_count_need > 0:
-            unready_blockmap_count_need = blockmap_count_need - self.__unready_blockmaps.qsize()
-            if unready_blockmap_count_need > 0:
-                for i in range(unready_blockmap_count_need):
-                    self.__unready_blockmaps.put(BlockMap())
-        
         
         screen = gamebase.get_screen()
         screen.blit(
