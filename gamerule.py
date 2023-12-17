@@ -75,11 +75,11 @@ class GameRule(SingletonEntity, DynamicEntity):
                 self.__blockmap_generator.destroy()
                 self.__blockmap_generator = None # type:ignore
                 score = self.score.quantize(Decimal("1.0"))
-                best_score = gamesave.get_best_score()
+                best_score = gamesave.get("best_score", Decimal)
                 if score > best_score:
                     self.__is_new_best_score = True
                     best_score = score
-                    gamesave.set_best_score(best_score)
+                    gamesave.set("best_score", best_score)
                 self.__best_score = best_score
         
         

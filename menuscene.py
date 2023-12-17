@@ -39,7 +39,7 @@ class Menu(DynamicEntity):
         self.__text_key_hint2 = font.render(
             "Press F to toggle fullscreen mode.", True, "black"
         )
-        best_score = gamesave.get_best_score()
+        best_score = gamesave.get("best_score", Decimal)
         if best_score != Decimal(0):
             self.__text_best_score = font.render(
                 "Best Score: " + str(best_score), True, "orange"
