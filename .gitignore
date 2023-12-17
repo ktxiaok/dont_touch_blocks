@@ -1,3 +1,5 @@
 __pycache__/
 _test/
 save.json
+build/
+*.spec
