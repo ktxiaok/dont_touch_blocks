@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Collection
 import json
+import os
 from typing import Any, Generic, Optional, TypeVar
 import typing
 import xor_encrypt
@@ -112,13 +113,14 @@ def load():
     global _save
 
     json_obj = None
-    with open(SAVE_FILENAME, "r", encoding = "utf-8") as file:
-        try:
-            json_obj = json.load(file)
-            if not isinstance(json_obj, dict):
-                json_obj = None
-        except:
-            pass
+    if os.path.exists(SAVE_FILENAME):
+         with open(SAVE_FILENAME, "r", encoding = "utf-8") as file:
+            try:
+                json_obj = json.load(file)
+                if not isinstance(json_obj, dict):
+                    json_obj = None
+            except:
+                pass
     if json_obj == None:
         json_obj = {}
     for prop in get_all_properties():
