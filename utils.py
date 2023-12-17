@@ -5,7 +5,7 @@ This module provides some useful tools.
 from decimal import Decimal
 from typing import Any, NoReturn, Sequence, Tuple, Union, Self
 import typing
-
+from enum import IntEnum
 from pygame import Color
 
 Numeric = Union[int, float, str, Decimal]
@@ -97,3 +97,50 @@ class DecimalVector2:
     
 class InvalidOperationException(Exception):
     pass
+
+class FadeState(IntEnum):
+    IN = 0
+    HOLD = 1
+    OUT = 2
+
+class FadeEffect:
+
+    __time_tuple: tuple[float, float, float]
+
+    __state: int = int(FadeState.IN)
+    __timer: float = 0.0
+    __is_finished: bool = False
+    
+    def __init__(self, in_time: float, hold_time: float, out_time: float):
+        self.__time_tuple = (in_time, hold_time, out_time)
+    
+    @property
+    def is_finished(self) -> bool:
+        return self.__is_finished
+    
+    @property
+    def value(self) -> float:
+        if self.__is_finished:
+            return 0.0
+        state = self.__state
+        if state == FadeState.IN:
+            return self.__timer / self.__time_tuple[state]
+        if state == FadeState.HOLD:
+            return 1.0
+        return 1 - self.__timer / self.__time_tuple[state]
+    
+    def update(self, delta_time: float):
+        self.__timer += delta_time
+        while True:
+            state = self.__state
+            limit_time = self.__time_tuple[state]
+            if self.__timer >= limit_time:
+                if state == FadeState.OUT:
+                    self.__is_finished = True
+                    break
+                self.__timer -= limit_time
+                self.__state += 1
+                continue
+            break
+             
+
