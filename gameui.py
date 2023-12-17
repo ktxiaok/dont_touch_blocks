@@ -12,6 +12,7 @@ from gamerule import GameRule
 from player import PlayerInputManager
 from scene import DynamicEntity
 import globalresources
+import gamesave
 
 FONT_HEIGHT = gamebase.get_default_font().get_height()
 SCORE_COLOR = Color("yellow")
@@ -138,11 +139,12 @@ class GameUi(DynamicEntity):
             prefix_best_score + str(game_rule.best_score), True, NEW_BEST_SCORE_COLOR if is_new_best_score else BEST_SCORE_COLOR
         )
 
-        gameover_sound = (
+        gameover_sound = None if gamesave.get("is_mute", bool) else (
             globalresources.SND_NEW_BEST_SCORE if is_new_best_score 
             else globalresources.SND_DEAD
         )
-        gameover_sound.play()
+        if gameover_sound != None:
+            gameover_sound.play()
     
     def __tick_game_over(self):
         screen = gamebase.get_screen()

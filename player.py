@@ -11,12 +11,14 @@ from scene import Scene, DynamicEntity, PygameEventListenerEntity, SingletonEnti
 import pygame
 from pygame import draw
 import globalresources
+import gamesave
 
 class PlayerInputManager(SingletonEntity, PygameEventListenerEntity, DynamicEntity):
     
     __request_jump: bool = False
     __request_escape: bool = False
     __request_fullscreen: bool = False
+    __request_mute: bool = False
 
     @property
     def request_jump(self) -> bool:
@@ -29,6 +31,10 @@ class PlayerInputManager(SingletonEntity, PygameEventListenerEntity, DynamicEnti
     @property
     def request_fullscreen(self) -> bool:
         return self.__request_fullscreen
+    
+    @property
+    def request_mute(self) -> bool:
+        return self.__request_mute
 
     def on_pygame_event(self, event: pygame.event.Event):
         if event.type == pygame.KEYUP:
@@ -39,12 +45,15 @@ class PlayerInputManager(SingletonEntity, PygameEventListenerEntity, DynamicEnti
                 self.__request_escape = True
             elif key == pygame.K_f:
                 self.__request_fullscreen = True
+            elif key == pygame.K_m:
+                self.__request_mute = True
     
     def on_late_tick(self):
         
         self.__request_jump = False
         self.__request_escape = False
         self.__request_fullscreen = False
+        self.__request_mute = False
 
             
 PLAYER_JUMP_SPEED = Decimal(285)
@@ -85,7 +94,8 @@ class Player(SingletonEntity, DynamicEntity):
         input_manager = self.__input_manager
         if input_manager.request_jump:
             self.__speed_y = -PLAYER_JUMP_SPEED
-            globalresources.SND_JUMP.play()
+            if not gamesave.get("is_mute", bool):
+                globalresources.SND_JUMP.play()
         g_accel = gamebase.GRAVITY_ACCEL
         self.__speed_y += g_accel * dt 
         self.__pos_y += self.__speed_y * dt

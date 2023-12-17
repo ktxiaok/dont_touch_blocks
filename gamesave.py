@@ -182,4 +182,5 @@ class EncryptedPropertyInfo(SimplePropertyInfo[TProperty], Generic[TProperty]):
         return str(val)
 
 define_simple("is_fullscreen", bool, False)
+define_simple("is_mute", bool, False)
 define(EncryptedPropertyInfo("best_score", Decimal, Decimal(0)))

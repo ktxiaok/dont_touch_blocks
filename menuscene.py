@@ -23,6 +23,7 @@ class Menu(DynamicEntity):
 
     __text_key_hint1: Surface
     __text_key_hint2: Surface
+    __text_key_hint3: Surface
     __text_best_score: Optional[Surface] = None
 
     def on_spawn(self):
@@ -37,7 +38,10 @@ class Menu(DynamicEntity):
             "Press Space to start the game!", True, "black"
         )
         self.__text_key_hint2 = font.render(
-            "Press F to toggle fullscreen mode.", True, "black"
+            "Press F to toggle the fullscreen mode.", True, "black"
+        )
+        self.__text_key_hint3 = font.render(
+            "Press M to toggle the mute mode.", True, "black"
         )
         best_score = gamesave.get("best_score", Decimal)
         if best_score != Decimal(0):
@@ -52,21 +56,29 @@ class Menu(DynamicEntity):
 
         x = gamebase.WINDOW_DIMENSION[0] // 2
         y = 300
+        surface = self.__text_key_hint1
         screen.blit(
-            self.__text_key_hint1, 
-            (x - self.__text_key_hint1.get_width() // 2, y)
+            surface, 
+            (x - surface.get_width() // 2, y)
         )
         y += 60
+        surface = self.__text_key_hint2
         screen.blit(
-            self.__text_key_hint2, 
-            (x - self.__text_key_hint2.get_width() // 2, y)
+            surface, 
+            (x - surface.get_width() // 2, y)
         )
         y += 60
-        text_best_score = self.__text_best_score
-        if text_best_score != None:
+        surface = self.__text_key_hint3
+        screen.blit(
+            surface, 
+            (x - surface.get_width() // 2, y)
+        )
+        y += 60
+        surface = self.__text_best_score
+        if surface != None:
             screen.blit(
-                text_best_score,
-                (x - text_best_score.get_width() // 2, y)
+                surface,
+                (x - surface.get_width() // 2, y)
             )
         
         if input_manager.request_jump:

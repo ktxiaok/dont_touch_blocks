@@ -58,9 +58,14 @@ class Caption(SingletonEntity, DynamicEntity):
                 )
 
 FONT = gamebase.get_default_font()
-IMGS_FULLSCREEN_SWITCH = {
-    enabled : FONT.render(f"Fullscreen {"Enabled" if enabled else "Disabled"}", True, "black") for enabled in (True, False)
-}
+
+def _generate_bool_option_imgs(name: str):
+    return {
+        enabled : FONT.render(f"{name} {"Enabled" if enabled else "Disabled"}", True, "black") for enabled in (True, False)
+    }
+
+IMGS_FULLSCREEN_SWITCH = _generate_bool_option_imgs("Fullscreen")
+IMGS_MUTE_SWITCH = _generate_bool_option_imgs("Mute")
 
 class KeyboardReactiveSettingsChanger(DynamicEntity):
 
@@ -89,3 +94,8 @@ class KeyboardReactiveSettingsChanger(DynamicEntity):
             is_fullscreen = pygame.display.is_fullscreen()
             gamesave.set("is_fullscreen", is_fullscreen)
             self.__caption.set_surface(IMGS_FULLSCREEN_SWITCH[is_fullscreen])
+        if input_manager.request_mute:
+            is_mute = gamesave.get("is_mute", bool)
+            is_mute = not is_mute
+            gamesave.set("is_mute", is_mute)
+            self.__caption.set_surface(IMGS_MUTE_SWITCH[is_mute])
