@@ -93,6 +93,7 @@ class BlockMapGenerator(SingletonEntity, DynamicEntity):
     def __run_work_thread(self):
         blockmap_manager = self.__blockmap_manager
         while True:
+            time.sleep(0.001)
             if self.__thread_stop_flag:
                 break
             bmap = blockmap_manager.try_get_unready_blockmap()
@@ -100,7 +101,7 @@ class BlockMapGenerator(SingletonEntity, DynamicEntity):
                 continue
             self.__generate(bmap)
             blockmap_manager.put_ready_blockmap(bmap)
-            time.sleep(0.001)
+            #time.sleep(0.001)
             
 
     def __generate(self, bmap: BlockMap):
