@@ -134,7 +134,7 @@ def run(initial_scene_name: str):
     request_load_scene(initial_scene_name)
     
     # init
-    _screen = display.set_mode(WINDOW_DIMENSION, vsync = 1)
+    _screen = display.set_mode(WINDOW_DIMENSION)
     display.set_caption("Don't Touch Blocks")
     clock = pygame.time.Clock()
     request_quit = False
