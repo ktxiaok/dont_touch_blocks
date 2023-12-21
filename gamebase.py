@@ -13,6 +13,7 @@ from utils import InvalidOperationException
 import gamesave
 import gc
 import globalresources
+import time
 
 pygame.init()
 
@@ -45,6 +46,10 @@ _scene_type_to_load: Optional[Type["Scene"]] = None
 
 _scene_type_dict: Dict[str, Type["Scene"]] = {}
 
+_frametime_ms: int = 0
+_framecounter: int = 0
+_frametimer_ns: int = 0
+
 def get_screen():
     '''
     A pygame.Surface instance representing the main window.
@@ -68,6 +73,10 @@ def get_active_scene():
 
     global _active_scene
     return _active_scene
+
+def get_frametime_ms():
+    global _frametime_ms
+    return _frametime_ms
 
 def register_scene(name: str, scene_type: Type["Scene"]):
     '''
@@ -118,6 +127,9 @@ def run(initial_scene_name: str):
     global _screen
     global _active_scene
     global _scene_type_to_load
+    global _frametime_ms
+    global _framecounter
+    global _frametimer_ns
 
     request_load_scene(initial_scene_name)
     
@@ -129,6 +141,8 @@ def run(initial_scene_name: str):
     print_timer = PRINT_INTERVAL
 
     while True:
+        starttime_ns = time.time_ns()
+
         # check whether there's a request to load a new scene.
         if _scene_type_to_load != None:
             if _active_scene != None: 
@@ -152,8 +166,13 @@ def run(initial_scene_name: str):
 
         _screen.fill(BACKGROUND_COLOR)
 
+        _frametimer_ns += time.time_ns() - starttime_ns
+
         # tick time calculation and tick call
         dt = clock.tick_busy_loop(TICK_RATE) / 1000
+
+        starttime_ns = time.time_ns()
+
         _active_scene._tick()
         latency = dt - TICK_TIME_FLOAT
         if latency > 0.005:
@@ -163,3 +182,10 @@ def run(initial_scene_name: str):
                 print(f"WARNING: Performance issue. Latency: {latency}")
         
         display.flip()
+
+        _frametimer_ns += time.time_ns() - starttime_ns
+        _framecounter += 1
+        if _framecounter >= 50:
+            _frametime_ms = _frametimer_ns // _framecounter // 1000000
+            _frametimer_ns = 0
+            _framecounter = 0

@@ -15,10 +15,15 @@ import gamesave
 
 class PlayerInputManager(SingletonEntity, PygameEventListenerEntity, DynamicEntity):
     
+    __request_debug: bool = False
     __request_jump: bool = False
     __request_escape: bool = False
     __request_fullscreen: bool = False
     __request_mute: bool = False
+
+    @property
+    def request_debug(self) -> bool:
+        return self.__request_debug
 
     @property
     def request_jump(self) -> bool:
@@ -39,7 +44,9 @@ class PlayerInputManager(SingletonEntity, PygameEventListenerEntity, DynamicEnti
     def on_pygame_event(self, event: pygame.event.Event):
         if event.type == pygame.KEYUP:
             key = event.key
-            if key == pygame.K_SPACE:
+            if key == pygame.K_SLASH:
+                self.__request_debug = True
+            elif key == pygame.K_SPACE:
                 self.__request_jump = True
             elif key == pygame.K_ESCAPE:
                 self.__request_escape = True
@@ -50,6 +57,7 @@ class PlayerInputManager(SingletonEntity, PygameEventListenerEntity, DynamicEnti
     
     def on_late_tick(self):
         
+        self.__request_debug = False
         self.__request_jump = False
         self.__request_escape = False
         self.__request_fullscreen = False
